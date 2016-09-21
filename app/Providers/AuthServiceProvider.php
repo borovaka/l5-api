@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\Gate;
+use App\ApiService\ApiGuard;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -21,9 +23,14 @@ class AuthServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(Request $request)
     {
         $this->registerPolicies();
+
+        Auth::extend('api', function ($app, $name, array $config) use ($request) {
+            // Return an instance of Illuminate\Contracts\Auth\Guard...
+            return new ApiGuard(Auth::createUserProvider($config['provider']), $request);
+        });
 
         //
     }

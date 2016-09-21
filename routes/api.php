@@ -13,6 +13,11 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
+Route::get('user',function () {
+    return \App\ApiService\ApiResponse::send(Auth::guard('api')->user());
+})->middleware('auth:api');
+Route::put('user',function (Request $request) {
+    $user = Auth::guard('api')->user();
+    $user->update($request->all());
+    return \App\ApiService\ApiResponse::send($user);
 })->middleware('auth:api');

@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use App\ApiService\ApiException;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
@@ -47,6 +48,8 @@ class Handler extends ExceptionHandler
         return parent::render($request, $exception);
     }
 
+
+
     /**
      * Convert an authentication exception into an unauthenticated response.
      *
@@ -57,9 +60,18 @@ class Handler extends ExceptionHandler
     protected function unauthenticated($request, AuthenticationException $exception)
     {
         if ($request->expectsJson()) {
-            return response()->json(['error' => 'Unauthenticated.'], 401);
+            $ex =  new ApiException(ApiException::UNAUTHORIZED);
+            return $ex->render();
         }
 
+
+        return redirect()->guest('login');
+    }
+
+    protected function apiexceptions($request, ApiException $exception) {
+        if ($request->expectsJson()) {
+            return $exception->render();
+        }
         return redirect()->guest('login');
     }
 }
